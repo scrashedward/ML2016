@@ -7,13 +7,13 @@ import random
 DataSize = 4320
 SetSize = 18
 SetLength = 10
-alpha = 0.05
-iternum = 50000
-theta = 0.0001
-eta = 0.001
-#b = 3.03583890051
+alpha = 0.5
+iternum = 30000
+theta = 0.00001
 b = 1
-w = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+eta = 0.0001
+w = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 
+0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
 #w = np.array([-0.0322398212742, -0.0626554822073, 0.242918821615, -0.236551919593, -0.0556195931807, 0.509461405446, -0.594239264946, 0.0985475217012, 1.00566957623 ])
 #w = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
 #w = np.array([0.1, 0.1, 0.1, 0, 0, 0.1, 0, 0.1, 0.7])
@@ -59,23 +59,28 @@ a21db = a21db.transpose()
 #print a21db.shape
 
 train = a21db[:-1,:]
+temp = train * train
+train = np.concatenate((train, temp))
+print train.shape
 y = a21db[-1:,:]
-#print train
-#print y.shape
+
 while 1==1:
 	b = float(random.randint(-5, 5))
-	w = np.array([-0.6+random.random()*2, -0.6+random.random()*2, -0.6+random.random()*2, -0.8+random.random()*2, -1.0+random.random()*2, -0.8+random.random()*2, -1.0+random.random()*2, random.random()*2, -0.3+random.random()*2])
+	w = np.array([random.random()*2, random.random()*2, random.random()*2, random.random()*2,
+	random.random()*2,	random.random()*2, random.random()*2, random.random()*2, random.random()*2,
+	random.random()/10,	random.random()/10, random.random()/10, random.random()/10, random.random()/10,
+	random.random()/10,	random.random()/10, random.random()/10, random.random()/10])
 	#print b
 	#print w
-	g2 = np.array([0,0,0,0,0,0,0,0,0])
+	g2 = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 	for i in range(iternum):
 		r = random.randint(0, 5252)
-		train2 = train[:, r:r+400]
-		c = (y[:,r:r+400] - w.dot(train2) - b)
+		train2 = train[:, r:r+200]
+		c = (y[:,r:r+200] - w.dot(train2) - b)
 		g = (alpha * 2 * (c * -1 * train2).mean(axis = 1))
 		g2 = g2 + g*g
 		#print g2+eta
-		w = w - alpha * g  / np.sqrt((g2+eta).astype(float)) - 2 * theta * w
+		w = w - alpha * g  / np.sqrt((g2+eta).astype(float))#- 2 * theta * w
 		b = b - (alpha * -2 * c.mean())
 		if i % 1000 == 0:
 			print i
@@ -94,6 +99,8 @@ while 1==1:
 		j = 0
 		for i in range(0, DataSize, SetSize):
 			temp = df2.ix[i+9,'2':].as_matrix()
+			temp2 = temp * temp
+			temp = np.concatenate((temp, temp2))
 			a = (temp*w).sum() + b
 			out.write('id_'+str(j) + ','+str(a)+'\n')
 			j = j + 1
@@ -102,3 +109,4 @@ while 1==1:
 		for i in w[:]:
 			out.write(str(i)+" ")
 		out.close()
+		break;
