@@ -7,9 +7,9 @@ import random
 DataSize = 4320
 SetSize = 18
 SetLength = 10
-alpha = 0.05
-iternum = 50000
-theta = 0.0001
+alpha = 0.02
+iternum = 100000
+theta = 0.000001
 eta = 0.001
 #b = 3.03583890051
 b = 1
@@ -22,10 +22,7 @@ mask = range(27)
 mask.remove(1)
 df = pd.read_csv('train.csv', encoding='Big5', usecols = mask, index_col = 'date', na_values='NR')
 
-'''
-First use linear regression to learn pm2.5 from other attributes
-concat to a very large array of data
-'''
+
 count = 0
 a21db = None
 testdb = None
@@ -35,6 +32,7 @@ for i in range(0,DataSize,SetSize):
 #		if count == 5:
 #			count = 0
 		secondArray = df.ix[i+9,str(j):str(j+9)].as_matrix()
+		secondArray[secondArray<0] = secondArray[secondArray>0].mean()
 		if i==0 and j ==0:
 			a21db = np.array([secondArray])
 		else:
@@ -47,6 +45,7 @@ for i in range(0,DataSize,SetSize):
 			secondArray = df.ix[i+9,str(j):str(23)].as_matrix()
 			tempArray = df.ix[i+9+SetSize, str(0):str(j-15)].as_matrix()
 			secondArray = np.concatenate((secondArray, tempArray))
+			secondArray[secondArray<0] = secondArray[secondArray>0].mean()
 			a21db = np.concatenate((a21db, [secondArray]))
 
 #	print a21db
@@ -63,8 +62,8 @@ y = a21db[-1:,:]
 #print train
 #print y.shape
 while 1==1:
-	b = float(random.randint(-5, 5))
-	w = np.array([-0.6+random.random()*2, -0.6+random.random()*2, -0.6+random.random()*2, -0.8+random.random()*2, -1.0+random.random()*2, -0.8+random.random()*2, -1.0+random.random()*2, random.random()*2, -0.3+random.random()*2])
+	#b = float(random.randint(-10, 10))
+	#w = np.array([-1+random.random()*3, -1+random.random()*3, -1+random.random()*3, -1+random.random()*3, -1.5+random.random()*3, -0.8+random.random()*3, -1.0+random.random()*3, random.random()*3, -0.3+random.random()*3])
 	#print b
 	#print w
 	g2 = np.array([0,0,0,0,0,0,0,0,0])
@@ -94,6 +93,7 @@ while 1==1:
 		j = 0
 		for i in range(0, DataSize, SetSize):
 			temp = df2.ix[i+9,'2':].as_matrix()
+			temp[temp<0] = temp[temp>0].mean()
 			a = (temp*w).sum() + b
 			out.write('id_'+str(j) + ','+str(a)+'\n')
 			j = j + 1
@@ -102,3 +102,4 @@ while 1==1:
 		for i in w[:]:
 			out.write(str(i)+" ")
 		out.close()
+	break;

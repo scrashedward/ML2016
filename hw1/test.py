@@ -7,13 +7,13 @@ import random
 DataSize = 4320
 SetSize = 18
 SetLength = 10
-alpha = 0.5
-iternum = 30000
+alpha = 0.6
+iternum = 200000
 theta = 0.00001
 b = 1
 eta = 0.0001
 w = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 
-0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001])
 #w = np.array([-0.0322398212742, -0.0626554822073, 0.242918821615, -0.236551919593, -0.0556195931807, 0.509461405446, -0.594239264946, 0.0985475217012, 1.00566957623 ])
 #w = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
 #w = np.array([0.1, 0.1, 0.1, 0, 0, 0.1, 0, 0.1, 0.7])
@@ -31,32 +31,21 @@ a21db = None
 testdb = None
 for i in range(0,DataSize,SetSize):
 	for j in range(15):
-#		count = count + 1
-#		if count == 5:
-#			count = 0
 		secondArray = df.ix[i+9,str(j):str(j+9)].as_matrix()
 		if i==0 and j ==0:
 			a21db = np.array([secondArray])
 		else:
 			a21db = np.concatenate((a21db, [secondArray]))
 	if ((i/SetSize)+1)%20 != 0:
-#		count = count + 1
-#		if count == 5 :
-#			count = 0
 		for j in range(15,24):
 			secondArray = df.ix[i+9,str(j):str(23)].as_matrix()
 			tempArray = df.ix[i+9+SetSize, str(0):str(j-15)].as_matrix()
 			secondArray = np.concatenate((secondArray, tempArray))
 			a21db = np.concatenate((a21db, [secondArray]))
 
-#	print a21db
-#	print i
-#where_are_NaNs = np.isnan(a21db)
-#a21db[where_are_NaNs] = 0
 
 a21db = a21db.transpose()
-#print a21db
-#print a21db.shape
+
 
 train = a21db[:-1,:]
 temp = train * train
@@ -65,18 +54,20 @@ print train.shape
 y = a21db[-1:,:]
 
 while 1==1:
-	b = float(random.randint(-5, 5))
-	w = np.array([random.random()*2, random.random()*2, random.random()*2, random.random()*2,
-	random.random()*2,	random.random()*2, random.random()*2, random.random()*2, random.random()*2,
-	random.random()/10,	random.random()/10, random.random()/10, random.random()/10, random.random()/10,
-	random.random()/10,	random.random()/10, random.random()/10, random.random()/10])
+	#b = float(random.randint(-5, 5))
+	#w = np.array([random.random()*2, random.random()*2, random.random()*2, random.random()*2,
+	#random.random()*2,	random.random()*2, random.random()*2, random.random()*2, random.random()*2,
+	#random.random()/10,	random.random()/10, random.random()/10, random.random()/10, random.random()/10,
+	#random.random()/10,	random.random()/10, random.random()/10, random.random()/10])
 	#print b
 	#print w
 	g2 = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-	for i in range(iternum):
+	for i in range(iternum+1):
+		if i == 50000:
+			alpha = alpha/10
 		r = random.randint(0, 5252)
-		train2 = train[:, r:r+200]
-		c = (y[:,r:r+200] - w.dot(train2) - b)
+		train2 = train[:, r:r+400]
+		c = (y[:,r:r+400] - w.dot(train2) - b)
 		g = (alpha * 2 * (c * -1 * train2).mean(axis = 1))
 		g2 = g2 + g*g
 		#print g2+eta
@@ -109,4 +100,4 @@ while 1==1:
 		for i in w[:]:
 			out.write(str(i)+" ")
 		out.close()
-		break;
+	break
