@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import math
 import random
+import sys
 
 DataSize = 4320
 SetSize = 18
@@ -14,11 +15,14 @@ eta = 0.001
 #b = 3.03583890051
 b = 1
 w = np.zeros(162)
-
+ada = 1
 mask = range(27)
 mask.remove(1)
 df = pd.read_csv('train.csv', encoding='Big5', usecols = mask, index_col = 'date', na_values='NR')
-
+if sys.argv[1] == 'true':
+	ada = 1
+else :
+	ada = 0
 
 count = 0
 a21db = None
@@ -77,20 +81,28 @@ train = a21db
 while 1==1:
 	g2 = np.zeros(162)
 	gb2 = 0
+	g = np.zeros(162)
 	for i in range(iternum):
-		#r is a random number to identify the data chosen in stochastic gradient descent
-		#train is the ndarray of training data, train2 is the stochastic chosen data
+		#r is a random number to identify the data 
+		#chosen in stochastic gradient descent.
+		#train is the ndarray of training data,
+		#train2 is the stochastic chosen data.
 		r = random.randint(0, 5252)
 		train2 = train[:, r:r+400]
 		#c is the array of (y -sigma(x_i*w_i) - b)
 		c = (y[r:r+400] - w.dot(train2) - b)
-		#g is the gradient descent error matrix and gb is the gradient descent error for b
-		g = (2 * (c * -1 * train2).mean(axis = 1))- 2 * theta * w
+		#g is the gradient descent error matrix
+		#gb is the gradient descent error for b.
+		if(ada == 1):
+			g = (2 * (c * -1 * train2).mean(axis = 1)) - 2 * theta * w
+		else :
+			g = (2 * (c * -1 * train2).mean(axis = 1))
 		gb = (-2 * c.mean())
 		#g2 and gb2 is for adagrad
 		g2 = g2 + g*g
 		gb2 = gb2 + gb*gb
 		#the feedback is as following
+		#b is the constant and w is the parameter array
 		w = w - alpha * g  / np.sqrt((g2+eta).astype(float)) 
 		b = b - alpha * gb / np.sqrt((gb2+eta).astype(float))
 		if i % 100 == 0:
@@ -101,7 +113,7 @@ while 1==1:
 	print error
 
 	if error < 100:
-		out = open('answer_'+str(error)+'.csv', "w+")
+		out = open(sys.argv[2], "w+")
 		out.write("id,value\n")
 		df2 = pd.read_csv('test_X.csv', na_values='NR', header = None)
 
