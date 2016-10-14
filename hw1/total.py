@@ -14,9 +14,6 @@ eta = 0.001
 #b = 3.03583890051
 b = 1
 w = np.zeros(162)
-#w = np.array([-0.0322398212742, -0.0626554822073, 0.242918821615, -0.236551919593, -0.0556195931807, 0.509461405446, -0.594239264946, 0.0985475217012, 1.00566957623 ])
-#w = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
-#w = np.array([0.1, 0.1, 0.1, 0, 0, 0.1, 0, 0.1, 0.7])
 
 mask = range(27)
 mask.remove(1)
@@ -70,31 +67,30 @@ for i in range(0,DataSize,SetSize):
 		y2 = df.ix[i+9,'0':]
 		y2[y2<0] = y2[y2>=0].mean()
 		y = np.concatenate((y, y2))
-#print a21db
-#print i
-#where_are_NaNs = np.isnan(a21db)
-#a21db[where_are_NaNs] = 0
 
 a21db = a21db.transpose()
-#print a21db
 print a21db.shape
 print y.shape
 
 train = a21db
 
-#print train
-#print y.shape
 while 1==1:
 	g2 = np.zeros(162)
 	gb2 = 0
 	for i in range(iternum):
+		#r is a random number to identify the data chosen in stochastic gradient descent
+		#train is the ndarray of training data, train2 is the stochastic chosen data
 		r = random.randint(0, 5252)
 		train2 = train[:, r:r+400]
+		#c is the array of (y -sigma(x_i*w_i) - b)
 		c = (y[r:r+400] - w.dot(train2) - b)
+		#g is the gradient descent error matrix and gb is the gradient descent error for b
 		g = (2 * (c * -1 * train2).mean(axis = 1))- 2 * theta * w
 		gb = (-2 * c.mean())
+		#g2 and gb2 is for adagrad
 		g2 = g2 + g*g
 		gb2 = gb2 + gb*gb
+		#the feedback is as following
 		w = w - alpha * g  / np.sqrt((g2+eta).astype(float)) 
 		b = b - alpha * gb / np.sqrt((gb2+eta).astype(float))
 		if i % 100 == 0:
@@ -123,9 +119,9 @@ while 1==1:
 			a = (temp2*w).sum() + b
 			out.write('id_'+str(j) + ','+str(a)+'\n')
 			j = j + 1
-		out.write(str(b))
-		out.write(',')
-		for i in w[:]:
-			out.write(str(i)+" ")
-		out.close()
+		#out.write(str(b))
+		#out.write(',')
+		#for i in w[:]:
+		#	out.write(str(i)+" ")
+		#out.close()
 	break;
