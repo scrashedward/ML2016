@@ -10,7 +10,7 @@ SetSize = 18
 SetLength = 10
 alpha = 0.5
 iternum = 18000
-theta = 0.1
+theta = 1
 eta = 0.001
 #b = 3.03583890051
 b = 1
@@ -105,7 +105,7 @@ while 1==1:
 		#b is the constant and w is the parameter array
 		w = w - alpha * g  / np.sqrt((g2+eta).astype(float)) 
 		b = b - alpha * gb / np.sqrt((gb2+eta).astype(float))
-		if i % 100 == 0:
+		if i % 1000 == 0:
 			print i
 			error = math.sqrt((((y - w.dot(train) - b)**2).sum())/5652)
 			print error
