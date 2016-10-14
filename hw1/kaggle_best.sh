@@ -1,2 +1,2 @@
 #! /bin/bash
-./total.py false kaggle_best.csv
+python ./total.py false kaggle_best.csv

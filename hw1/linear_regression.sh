@@ -1,2 +1,2 @@
 #! /bin/bash
-./total.py true linear_regression.csv
+python ./total.py true linear_regression.csv
