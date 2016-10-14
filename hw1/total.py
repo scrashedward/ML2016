@@ -10,19 +10,19 @@ SetSize = 18
 SetLength = 10
 alpha = 0.5
 iternum = 18000
-theta = 0.3
+theta = 0.1
 eta = 0.001
 #b = 3.03583890051
 b = 1
 w = np.zeros(162)
-ada = 1
+reg = 1
 mask = range(27)
 mask.remove(1)
 df = pd.read_csv('train.csv', encoding='Big5', usecols = mask, index_col = 'date', na_values='NR')
 if sys.argv[1] == 'true':
-	ada = 1
+	reg = 1
 else :
-	ada = 0
+	reg = 0
 
 count = 0
 a21db = None
@@ -93,8 +93,8 @@ while 1==1:
 		c = (y[r:r+400] - w.dot(train2) - b)
 		#g is the gradient descent error matrix
 		#gb is the gradient descent error for b.
-		if(ada == 1):
-			g = (2 * (c * -1 * train2).mean(axis = 1)) - 2 * theta * w
+		if(reg == 1):
+			g = (2 * (c * -1 * train2).mean(axis = 1)) + 2 * theta * w
 		else :
 			g = (2 * (c * -1 * train2).mean(axis = 1))
 		gb = (-2 * c.mean())
