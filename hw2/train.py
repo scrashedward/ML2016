@@ -3,12 +3,13 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import normalize
+eta = 0.000000001
 
 def logistic(z):
-	return 1/(1+np.exp(-z))
+	return 1/(1+np.exp(-z+eta))
 
 def error(x, w, b, y):
-	return (-(y*np.log(logistic(x.dot(w)+b)) + (1-y)*np.log(1-logistic(x.dot(w)+b)))).sum()
+	return (-(y*np.log(logistic(x.dot(w)+b)+eta) + (1-y)*np.log(1-logistic(x.dot(w)+b)+eta))).mean()
 
 def gradDes(x, w, b, y):
 	return (-(y-logistic(x.dot(w)+b)).transpose()*x.transpose()).mean(axis = 1)
@@ -39,10 +40,9 @@ print train_data.shape
 w = np.zeros(57)
 b = 0
 alpha = 1 #learning rate
-iternum = 10000; #iteration number
+iternum = 50000; #iteration number
 gdwSum = np.zeros(57)
 gdbSum = 0
-eta = 0.0001
 l = 0.1
 
 for roundNum in range(iternum):
@@ -80,7 +80,7 @@ test_data = logistic(test_data.dot(w) +b)
 print test_data.shape
 #print test_data
 
-out = open('logistic.csv','w+')
+out = open('logistic'+str(alpha) + '.' + str(iternum) +'.csv','w+')
 out.write('id,label\n')
 for i in range(1,601):
 	out.write(str(i))
