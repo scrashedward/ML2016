@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import normalize
-from random import random
+from random import random, randint
 
 eta = 0.00000001
 
@@ -34,51 +34,69 @@ self_y = data.ix[3802:, 58].as_matrix()
 print data.ix[1:,:].as_matrix().shape
 print train_data.shape
 
-#Neuron number
-nNum = 5
-dataNum = 1000
-dataLen = 3801
+adbNum = 9
+w_input = []
+w = []
+self_test_result = np.zeros(200)
+for i in range(adbNum):
 
-w_input = np.random.rand(nNum,58)*2-1
-w = np.random.rand(nNum + 1)*2-1
-alpha = 0.5 #learning rate
-iterNum = 15000; #iteration number
-gdwiSum = np.zeros((nNum,58))
-gdwSum = np.zeros(nNum + 1)
+	#Neuron number
+	nNum = np.random.randint(low = 2, high = 6)
+	dataNum = 1000
+	dataLen = 3801
 
-for roundNum in range(iterNum):
-	#calculate gradient descent for w
-	r = np.random.randint(dataLen, size = dataNum)
-	o_input = logistic(train_data[r,:].dot(w_input.T))
-	o = logistic(np.column_stack((o_input, np.ones(dataNum))).dot(w))
-	delta_o = (o-y[r])
+	w_input.append(np.random.rand(nNum,58)*2-1)
+	w.append(np.random.rand(nNum + 1)*2-1)
+	alpha = 0.5 #learning rate
+	iterNum = np.random.randint(low = 3, high = 6) * 3000; #iteration number
+	gdwiSum = np.zeros((nNum,58))
+	gdwSum = np.zeros(nNum + 1)
 
-	gdw = (np.column_stack((o_input, np.ones(dataNum))).T * delta_o.T).mean(axis = 1)
-	gdwSum = gdwSum + np.square(gdw)
-	
-	
-	gdwi = ((train_data[r,:].T).dot(delta_o[:,None].dot(w[:nNum,None].T) * o_input * ( 1 - o_input)))/dataNum
-	gdwi = gdwi.T
-	gdwiSum = gdwiSum + np.square(gdwi)
+	for roundNum in range(iterNum):
+		#calculate gradient descent for w
+		r = np.random.randint(dataLen, size = dataNum)
+		o_input = logistic(train_data[r,:].dot(w_input[i].T))
+		o = logistic(np.column_stack((o_input, np.ones(dataNum))).dot(w[i]))
+		delta_o = (o-y[r])
 
-	w = w - alpha * gdw / np.sqrt(gdwSum +eta)
-	w_input = w_input - alpha * gdwi / np.sqrt(gdwiSum + eta)
+		gdw = (np.column_stack((o_input, np.ones(dataNum))).T * delta_o.T).mean(axis = 1)
+		gdwSum = gdwSum + np.square(gdw)
+		
+		
+		gdwi = ((train_data[r,:].T).dot(delta_o[:,None].dot(w[i][:nNum,None].T) * o_input * ( 1 - o_input)))/dataNum
+		gdwi = gdwi.T
+		gdwiSum = gdwiSum + np.square(gdwi)
 
-	if roundNum % 1000 == 0:
-		print roundNum
-		o_input = logistic(train_data.dot(w_input.T))
-		o = logistic(np.column_stack((o_input, np.ones(dataLen))).dot(w))
-		print error(o, y)
-		#raw_input()
-#print o
+		w[i] = w[i] - alpha * gdw / np.sqrt(gdwSum +eta)
+		w_input[i] = w_input[i] - alpha * gdwi / np.sqrt(gdwiSum + eta)
 
+		#if roundNum % 1000 == 0:
+		#	print roundNum
+		#	o_input = logistic(train_data.dot(w_input[i].T))
+		#	o = logistic(np.column_stack((o_input, np.ones(dataLen))).dot(w[i]))
+		#	print error(o, y)
+		#	raw_input()
+	self_test_stack = np.column_stack((self_test, np.ones(200)))
+	self_input = logistic(self_test_stack.dot(w_input[i].T))
+	self_o = logistic(np.column_stack((self_input, np.ones(200))).dot(w[i]))
 
-self_test = np.column_stack((self_test, np.ones(200)))
-self_input = logistic(self_test.dot(w_input.T))
-self_o = logistic(np.column_stack((self_input, np.ones(200))).dot(w))
+	print 'self test error:' + str(error(self_o,self_y))
+	self_o[self_o < 0.5] = 0
+	self_o[self_o >= 0.5] = 1
+	self_test_result = self_test_result + self_o
 
-print 'self test error:' + str(error(self_o,self_y))
+print self_test_result
+self_test_result[self_test_result > adbNum/2] = 1
+self_test_result[self_test_result < adbNum/2] = 0
 
+wrong = 0
+for i in range(200):
+	if self_test_result[i] != self_y[i]:
+		wrong = wrong + 1
+
+print 'wrong:' + str(wrong)
+
+'''
 test_data = pd.read_csv('spam_test.csv',index_col = 0, header = None)
 test_data = test_data.ix[1:,:].as_matrix()
 test_data = normalize(test_data, axis = 0)
@@ -99,3 +117,4 @@ for i in range(1,601):
 	else:
 		out.write(',0\n')
 out.close()
+'''
