@@ -35,14 +35,14 @@ print data.ix[1:,:].as_matrix().shape
 print train_data.shape
 
 #Neuron number
-nNum = 5
+nNum = 3
 dataNum = 1000
 dataLen = 3801
 
 w_input = np.random.rand(nNum,58)*2-1
 w = np.random.rand(nNum + 1)*2-1
 alpha = 0.5 #learning rate
-iterNum = 15000; #iteration number
+iterNum = 6000; #iteration number
 gdwiSum = np.zeros((nNum,58))
 gdwSum = np.zeros(nNum + 1)
 
@@ -79,6 +79,16 @@ self_o = logistic(np.column_stack((self_input, np.ones(200))).dot(w))
 
 print 'self test error:' + str(error(self_o,self_y))
 
+self_o[self_o > 0.5] = 1
+self_o[self_o <= 0.5] = 0
+wrong = 0
+print self_o
+for i in range(200):
+	if self_o[i] != self_y[i]:
+		wrong = wrong + 1
+print 'wrong:' + str(wrong)
+
+'''
 test_data = pd.read_csv('spam_test.csv',index_col = 0, header = None)
 test_data = test_data.ix[1:,:].as_matrix()
 test_data = normalize(test_data, axis = 0)
@@ -99,3 +109,4 @@ for i in range(1,601):
 	else:
 		out.write(',0\n')
 out.close()
+'''
