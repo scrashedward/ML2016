@@ -39,21 +39,22 @@ print train_data.shape
 
 w = np.zeros(57)
 b = 0
-alpha = 1 #learning rate
-iternum = 50000; #iteration number
+alpha = 5 #learning rate
+iternum = 150000; #iteration number
 gdwSum = np.zeros(57)
 gdbSum = 0
-l = 0.1
+l = 0.0001
 
 for roundNum in range(iternum):
 	#calculate gradient descent for w
-	gdw = gradDes(train_data, w, b, y)# - l*w
-	gdb = gradDesb(train_data, w, b, y)
+	r = np.random.randint(4001,size=20)
+	gdw = gradDes(train_data[r,:], w, b, y[r])
+	gdb = gradDesb(train_data[r,:], w, b, y[r])
 	gdwSum = gdwSum + np.square(gdw)
 	gdbSum = gdbSum + np.square(gdb)
 	w = w - alpha * gdw / np.sqrt(gdwSum+eta).astype(float)
 	b = b - alpha * gdb / np.sqrt(gdbSum+eta).astype(float)
-	if roundNum % 1000 == 0:
+	if roundNum % 10000 == 0:
 		print roundNum
 		print error(train_data, w, b, y)
 		#raw_input()
