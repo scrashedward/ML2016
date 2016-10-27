@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-
+import sys
 import pandas as pd
 import numpy as np
 from time import gmtime, strftime
@@ -19,7 +19,7 @@ def error(o,y):
 
 
 #read data from csv
-data = pd.read_csv('spam_train.csv', index_col = 0, header = None)
+data = pd.read_csv( sys.argv[1], index_col = 0, header = None)
 
 #get training data from data
 #train_data is a numpy ndarray of size 4001, 57 
@@ -33,7 +33,7 @@ train_data = np.column_stack((train_data, temp.T))
 #y is the result ndarray of size 4001, 1
 y = data.ix[1:, 58].as_matrix()
 
-model = open('model', 'w+')
+model = open(sys.argv[2], 'w+')
 adbNum = 25
 w_input = []
 w = []

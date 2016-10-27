@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+import sys
 import numpy as np
 import pandas as pd
 from time import gmtime, strftime
@@ -9,12 +11,12 @@ eta = 0.00000001
 def logistic(z):
 	return 1/(1+np.exp(-z+eta))
 	
-test_data = pd.read_csv('spam_test.csv',index_col = 0, header = None)
+test_data = pd.read_csv(sys.argv[2],index_col = 0, header = None)
 test_data = test_data.ix[1:,:].as_matrix()
 test_data = (test_data - test_data.mean(axis = 0))/test_data.std(axis = 0)
 test_data = np.column_stack((test_data, np.ones(600)))
 
-model = open('model', 'r')
+model = open(sys.argv[1], 'r')
 
 line = model.readline()
 test_result = np.zeros(600)
@@ -50,7 +52,7 @@ test_o[test_result < float(adbNum)/float(2)] = 0
 
 #print test_o
 
-out = open('nn_test.csv','w+')
+out = open(sys.argv[3],'w+')
 out.write('id,label\n')
 for i in range(1,601):
 	out.write(str(i) + "," + str(int(test_o[i-1])) + '\n')
