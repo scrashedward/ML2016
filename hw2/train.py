@@ -39,12 +39,15 @@ gdbSum = 0
 l = 0.0001
 
 for roundNum in range(iternum):
-	#calculate gradient descent for w
-	r = np.random.randint(4001,size=20)
+	#random columns for stochastic gradient descent
+	r = np.random.randint(4001,size=200)
+	#calculate gradient descent for w and b
 	gdw = gradDes(train_data[r,:], w, b, y[r])
 	gdb = gradDesb(train_data[r,:], w, b, y[r])
+	#adagrad for w and b
 	gdwSum = gdwSum + np.square(gdw)
 	gdbSum = gdbSum + np.square(gdb)
+	#update parameter value
 	w = w - alpha * gdw / np.sqrt(gdwSum+eta).astype(float)
 	b = b - alpha * gdb / np.sqrt(gdbSum+eta).astype(float)
 	if roundNum % 10000 == 0:
