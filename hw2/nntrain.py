@@ -47,7 +47,7 @@ for i in range(adbNum):
 
 	w_input.append(np.random.rand(nNum,58)*2-1)
 	w.append(np.random.rand(nNum + 1)*2-1)
-	alpha = 1.5  #learning rate
+	alpha = 1 + np.random.random()  #learning rate
 	iterNum = np.random.randint(low = 12, high = 18) * 1000; #iteration number
 	gdwiSum = np.zeros((nNum,58))
 	gdwSum = np.zeros(nNum + 1)
@@ -57,25 +57,24 @@ for i in range(adbNum):
 		r = np.random.randint(dataLen, size = dataNum)
 		o_input = logistic(train_data[r,:].dot(w_input[i].T))
 		o = logistic(np.column_stack((o_input, np.ones(dataNum))).dot(w[i]))
+		#delta of the output layer
 		delta_o = (o-y[r])
-
+		#back propagation of output layer
 		gdw = (np.column_stack((o_input, np.ones(dataNum))).T * delta_o.T).mean(axis = 1)
 		gdwSum = gdwSum + np.square(gdw)
-		
-		
+		#back propagation of hidden layer
 		gdwi = ((train_data[r,:].T).dot(delta_o[:,None].dot(w[i][:nNum,None].T) * o_input * ( 1 - o_input)))/dataNum
 		gdwi = gdwi.T
 		gdwiSum = gdwiSum + np.square(gdwi)
-
+		#update weight value
 		w[i] = w[i] - alpha * gdw / np.sqrt(gdwSum +eta)
 		w_input[i] = w_input[i] - alpha * gdwi / np.sqrt(gdwiSum + eta)
 
 		if roundNum == iterNum - 1:
-		#	print roundNum
 			o_input = logistic(train_data.dot(w_input[i].T))
 			o = logistic(np.column_stack((o_input, np.ones(dataLen))).dot(w[i]))
 			print str(i) + ": " + str(error(o, y))
-		#	raw_input()
+			
 	np.savetxt(model, w_input[i], delimiter = ',', footer = '=')
 	np.savetxt(model, w[i], delimiter = ',', footer = '=')
 
