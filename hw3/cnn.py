@@ -48,7 +48,7 @@ def new_datagen():
         featurewise_std_normalization=False,  # divide inputs by std of the dataset
         samplewise_std_normalization=False,  # divide each input by its std
         zca_whitening=False,  # apply ZCA whitening
-        rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+        rotation_range=15,  # randomly rotate images in the range (degrees, 0 to 180)
         width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
         height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
         horizontal_flip=True,  # randomly flip images
@@ -135,11 +135,11 @@ else:
 			verbose = 1 )
 if SemiSupervised:
 	#while(True):
-	for i in range(10):
+	for i in range(15):
 		result = model.predict(unlabel, batch_size = batch_size, verbose = 2)
 		toRemove = []
 		for i in range(result.shape[0]):
-			if result[i].max() > 0.999:
+			if result[i].max() > 0.9999:
 				argmax = result[i].argmax()
 				result[i] = np.zeros((1,10))
 				result[i][argmax] = 1
@@ -149,7 +149,7 @@ if SemiSupervised:
 		label = np.concatenate((label, result[toRemove]))
 		unlabel = np.delete(unlabel, toRemove, 0)
 		print all_label.shape
-		if len(toRemove) == 0  or label.shape[0] >= 20000:
+		if len(toRemove) == 0  or label.shape[0] >= 30000:
 			break;
 
 		model = new_model(all_label.shape[1:])
