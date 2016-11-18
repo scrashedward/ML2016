@@ -132,14 +132,14 @@ else:
                         batch_size=batch_size),
                         samples_per_epoch=all_label.shape[0],
                         nb_epoch=nb_epoch,
-			verbose = 1 )
+			verbose = 0 )
 if SemiSupervised:
 	#while(True):
 	for i in range(15):
 		result = model.predict(unlabel, batch_size = batch_size, verbose = 2)
 		toRemove = []
 		for i in range(result.shape[0]):
-			if result[i].max() > 0.9999:
+			if result[i].max() > 0.999:
 				argmax = result[i].argmax()
 				result[i] = np.zeros((1,10))
 				result[i][argmax] = 1
@@ -149,7 +149,7 @@ if SemiSupervised:
 		label = np.concatenate((label, result[toRemove]))
 		unlabel = np.delete(unlabel, toRemove, 0)
 		print all_label.shape
-		if len(toRemove) == 0  or label.shape[0] >= 30000:
+		if len(toRemove) == 0  or label.shape[0] >= 20000:
 			break;
 
 		model = new_model(all_label.shape[1:])
