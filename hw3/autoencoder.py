@@ -2,7 +2,7 @@
 
 import pickle
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import sys
 from keras.utils import np_utils
 from keras.preprocessing.image import ImageDataGenerator
