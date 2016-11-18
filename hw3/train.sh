@@ -1,3 +1,3 @@
 #! /bin/bash
 
-python ./autoencoder.py $1 $2
+python ./cnn.py $1 $2 -semi
