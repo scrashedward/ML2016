@@ -19,6 +19,15 @@ from time import time
 
 import numpy as np
 import pandas as pd
+from stemming.porter2 import stem
+from nltk.corpus import stopwords
+
+
+stopword = stopwords.words('english')
+
+stopword.append(['i', 'how', 'what'])
+
+chars_to_remove = ['.', '!', '?', ',', '[', ']', '(', ')', '/', '%', '#', '@', '=', '+', '&', '*', '\'', '"', '\n']
 
 
 # Display progress logs on stdout
@@ -46,6 +55,9 @@ op.add_option("--n-features", type=int, default=10000,
 op.add_option("--verbose",
               action="store_true", dest="verbose", default=False,
               help="Print progress reports inside k-means algorithm.")
+op.add_option("--data", dest = "data", help="input data directory")
+
+op.add_option("--output", dest = "output", help = "output file name")
 
 op.print_help()
 
@@ -53,6 +65,10 @@ op.print_help()
 if len(args) > 0:
     op.error("this script takes no arguments.")
     sys.exit(1)
+
+print(opts.data)
+
+print(opts.output)
 
 print(opts.n_components)
 
@@ -64,12 +80,15 @@ print(opts.use_hashing)
 
 print(opts.verbose)
 
-f = open("title_StackOverflow.txt", 'r')
+f = open(opts.data + "title_StackOverflow.txt", 'r')
 
 dataset = f.readlines()
 
-print(type(dataset))
-print(len(dataset))
+dataset = [" ".join([word.lower().translate(None, ''.join(chars_to_remove)) for word in sentence.split(" ")]) for sentence in dataset]
+
+dataset = [" ".join([stem(word) for word in sentence.split(" ")]) for sentence in dataset]
+
+dataset = [" ".join([word for word in sentence.split(" ") if unicode(word, 'utf-8') not in stopword]) for sentence in dataset]
 
 t0 = time()
 if opts.use_hashing:
@@ -86,8 +105,9 @@ if opts.use_hashing:
                                        binary=False)
 else:
     vectorizer = TfidfVectorizer(max_df=0.5, max_features=opts.n_features,
-                                 min_df=20, stop_words='english',
+                                 min_df=2, stop_words=stopwords.words('english'),
                                  use_idf=opts.use_idf)
+
 X = vectorizer.fit_transform(dataset)
 
 print("done in %fs" % (time() - t0))
@@ -115,8 +135,8 @@ if opts.n_components:
     print()
 
 if opts.minibatch:
-    km = MiniBatchKMeans(n_clusters=20, init='k-means++', n_init=1,
-                         init_size=1000, batch_size=1000, verbose=opts.verbose)
+    km = MiniBatchKMeans(n_clusters=50, init='k-means++', n_init=100,
+                         init_size=1000, batch_size=500, verbose=opts.verbose)
 else:
     km = KMeans(n_clusters=20, init='k-means++', max_iter=100, n_init=1,
                 verbose=opts.verbose)
@@ -147,7 +167,7 @@ if not opts.use_hashing:
             print(' %s' % terms[ind], end='')
         print()
 
-df = pd.read_csv('check_index.csv', usecols = [1,2],skiprows = 0)
+df = pd.read_csv(opts.data + 'check_index.csv', usecols = [1,2],skiprows = 0)
 
 data = df.as_matrix()
 
@@ -156,7 +176,7 @@ result = km.labels_[data[:,0]] == km.labels_[data[:, 1]]
 print(type(result))
 print(result.shape)
 
-f = open('result.csv', 'w+')
+f = open(opts.output, 'w+')
 
 f.write('ID,Ans\n')
 
